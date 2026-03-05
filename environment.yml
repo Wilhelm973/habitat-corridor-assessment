@@ -1,0 +1,49 @@
+name: camera-gis
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10
+  
+  # 核心GIS库 (由 conda-forge 提供预编译二进制文件，告别环境报错)
+  - gdal>=3.8.0
+  - geopandas>=0.14.0
+  - rasterio>=1.3.0
+  - pyproj>=3.6.0
+  - shapely>=2.0.0
+  - fiona>=1.9.0
+
+  # 空间分析与建模
+  - scikit-learn>=1.3.0
+  - scipy>=1.11.0
+  - numpy>=1.24.0
+  - pandas>=2.0.0
+  - xarray>=2023.6.0
+
+  # 生态学专用库 & 跨语言桥接方案
+  - pysal>=2.7.0
+  - juliacall          # 桥接核心：允许 Python 代码直接调用 Julia 的 Circuitscape
+  - rpy2               # 桥接核心：允许 Python 代码直接运行 R 语言的 landscapemetrics
+  - pylandstats        # 纯 Python 的景观格局指数替代方案（推荐优先使用这个）
+
+  # 可视化
+  - matplotlib>=3.7.0
+  - seaborn>=0.12.0
+  - plotly>=5.17.0
+  - folium>=0.14.0
+  - contextily>=1.5.0
+
+  # 工具类
+  - pyyaml>=6.0
+  - tqdm>=4.65.0
+  - joblib>=1.3.0
+  - scikit-image>=0.21.0
+
+  # 报告生成
+  - jinja2>=3.1.0
+  - openpyxl>=3.1.0
+  - pdfkit             # Windows 友好的 PDF 生成库 (需配合 wkhtmltopdf 软件)
+
+  # 如果未来有只能用 pip 安装的冷门包，可以写在下面
+  - pip:
+    - opencv-python    # 考虑到你需要处理红外相机图像，这里预留了 opencv

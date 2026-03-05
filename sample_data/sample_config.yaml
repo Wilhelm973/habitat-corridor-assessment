@@ -1,0 +1,91 @@
+# 白冠长尾雉生境评估系统 - 董寨真实数据配置
+
+# 1. 输入文件路径配置
+input:
+  species_csv: "sample_data/dongzhai_species_occurrence.csv"
+  boundary_shp: "sample_data/dongzhai_boundary.shp"
+  roads_shp: "sample_data/dongzhai_roads.shp"
+  villages_shp: "sample_data/dongzhai_villages.shp"
+  rivers_shp: "sample_data/dongzhai_rivers.shp"
+  dem_tif: "sample_data/dem.tif"
+  ndvi_tif: "sample_data/dongzhai_ndvi_30m.tif"
+  landuse_tif: "sample_data/dongzhai_landuse_30m.tif"
+
+# 2. 空间处理参数
+processing:
+  target_crs: "EPSG:4547" # CGCS2000 3度带，非常适合中国中部区域的投影面积计算
+  target_resolution: 30
+  buffer_distance: 5000
+  resample_method: "bilinear"
+
+# 3. 生境模型参数
+habitat_model:
+  predictors:
+    - "dem"
+    - "slope"
+    - "aspect"
+    - "ndvi"
+    - "landuse"
+    - "distance_to_roads"
+    - "distance_to_villages"
+    - "distance_to_rivers"
+  algorithm: "random_forest"
+  random_forest:
+    n_estimators: 100
+    max_depth: 10
+    min_samples_split: 5
+    min_samples_leaf: 2
+
+# 4. 连通性分析参数
+connectivity:
+  resistance_formula: "exponential"
+  exponential:
+    base: 2.718
+    exponent: -2
+  special_resistance:
+    roads: 1000
+    villages: 500
+    water: 50
+  circuitscape:
+    solver: "cg+amg"
+    precision: "double"
+    max_iters: 1000
+    tolerance: 1e-6
+  habitat_patch_threshold: 0.7
+  corridor_threshold: 0.3
+
+# 5. 管理指标参数
+management:
+  habitat_classification:
+    high_quality: 0.7
+    medium_quality: 0.4
+    low_quality: 0.0
+  patrol_points:
+    min_patch_size: 10
+    max_points_per_patch: 3
+  threat_warning:
+    road_proximity: 100
+    village_proximity: 500
+    overlap_threshold: 0.1
+
+# 6. 输出配置
+output:
+  base_dir: "output"
+  raster_dir: "output/rasters"
+  vector_dir: "output/vectors"
+  report_dir: "output/reports"
+  figures_dir: "output/figures"
+  raster_format: "tif"
+  vector_format: "shp"
+  visualization:
+    habitat_colormap: "viridis"
+    resistance_colormap: "plasma"
+    current_colormap: "hot"
+    basemap: "Esri.WorldImagery"
+  report_template: "templates/report_template.html"
+
+# 7. 日志配置
+logging:
+  level: "INFO"
+  file: "logs/habitat_assessment.log"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"

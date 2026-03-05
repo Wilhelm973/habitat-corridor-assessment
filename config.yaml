@@ -1,0 +1,133 @@
+# 白冠长尾雉生境评估系统配置
+
+# 1. 输入文件路径配置
+input:
+  # 物种数据
+  species_csv: "./input_data/species_occurrence.csv"
+  
+  # 矢量数据
+  boundary_shp: "./input_data/reserve_boundary.shp"
+  roads_shp: "./input_data/roads.shp"
+  villages_shp: "./input_data/villages.shp"
+  rivers_shp: "./input_data/rivers.shp"
+  
+  # 栅格数据
+  dem_tif: "./input_data/dem.tif"
+  ndvi_tif: "./input_data/ndvi.tif"
+  landuse_tif: "./input_data/landuse.tif"
+
+# 2. 空间处理参数
+processing:
+  # 目标坐标系 (使用CGCS2000 3度带投影)
+  target_crs: "EPSG:4547"
+  
+  # 目标分辨率 (单位: 米)
+  target_resolution: 30
+  
+  # 研究区域缓冲区 (单位: 米)
+  buffer_distance: 5000
+  
+  # 重采样方法
+  resample_method: "bilinear"  # bilinear, nearest, cubic
+
+# 3. 生境模型参数
+habitat_model:
+  # 环境变量选择
+  predictors:
+    - "elevation"      # 高程
+    - "slope"          # 坡度
+    - "aspect"         # 坡向
+    - "ndvi"           # 植被指数
+    - "distance_to_road"    # 距道路距离
+    - "distance_to_village" # 距村庄距离
+    - "distance_to_river"   # 距水系距离
+    - "landuse_type"   # 土地利用类型
+  
+  # 建模算法 (可选: random_forest, maxent, glm)
+  algorithm: "random_forest"
+  
+  # 随机森林参数
+  random_forest:
+    n_estimators: 100
+    max_depth: 10
+    min_samples_split: 5
+    min_samples_leaf: 2
+
+# 4. 连通性分析参数
+connectivity:
+  # 阻力面转换公式
+  resistance_formula: "exponential"  # linear, exponential, logarithmic
+  
+  # 指数公式参数
+  exponential:
+    base: 2.718
+    exponent: -2
+  
+  # 特殊区域阻力值
+  special_resistance:
+    roads: 1000
+    villages: 500
+    water: 50
+  
+  # Circuitscape参数
+  circuitscape:
+    solver: "cg+amg"
+    precision: "double"
+    max_iters: 1000
+    tolerance: 1e-6
+  
+  # 核心生境斑块识别阈值
+  habitat_patch_threshold: 0.7
+  
+  # 廊道识别阈值
+  corridor_threshold: 0.3
+
+# 5. 管理指标参数
+management:
+  # 生境质量分类阈值
+  habitat_classification:
+    high_quality: 0.7    # 绿色区域
+    medium_quality: 0.4  # 黄色区域
+    low_quality: 0.0     # 红色区域
+  
+  # 巡护点生成参数
+  patrol_points:
+    min_patch_size: 10   # 最小斑块面积(公顷)
+    max_points_per_patch: 3
+    
+  # 威胁预警阈值
+  threat_warning:
+    road_proximity: 100   # 道路临近距离(米)
+    village_proximity: 500 # 村庄临近距离(米)
+    overlap_threshold: 0.1 # 重叠面积比例阈值
+
+# 6. 输出配置
+output:
+  # 目录结构
+  base_dir: "./output"
+  raster_dir: "./output/rasters"
+  vector_dir: "./output/vectors"
+  report_dir: "./output/reports"
+  figures_dir: "./output/figures"
+  
+  # 文件格式
+  raster_format: "tif"
+  vector_format: "shp"
+  
+  # 可视化样式
+  visualization:
+    habitat_colormap: "viridis"
+    resistance_colormap: "plasma"
+    current_colormap: "hot"
+    
+    # 地图底图
+    basemap: "Esri.WorldImagery"
+    
+  # 报告模板
+  report_template: "./templates/report_template.html"
+
+# 7. 日志配置
+logging:
+  level: "INFO"
+  file: "./logs/habitat_assessment.log"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
